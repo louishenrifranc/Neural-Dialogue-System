@@ -34,11 +34,15 @@ File created in _data/_ folder, except dataset.p can be delete after this step. 
 
 ## Side notes concerning trueAi assignement:
 #### Transform ubuntu-corpus / manpages words into embeddings
-  * I used a small part of ubuntu-dataset for the training of the neural network (30.000/1.000.000 elements). I just wanted to test my model on some data (other than random). I create a small dataset containing ~10 manPages as in the form of the paper. Every words in the ubuntu corpus (size_of_vocabulary=10000 words) are transformed into embeddings (size_embeddings=28) with word2vec. I used tensorflow for word2vec. 
+  * I used a small part of ubuntu-dataset for the training of the neural network (30.000/1.000.000 elements). I just wanted to test my model on some data (other than random) and not on all the ubuntu corpus. I also create a small dataset containing ~10 manPages as in the form of the paper. 
+  Every words in the ubuntu corpus (size_of_vocabulary=10000 most commun words) are transformed into embeddings (size_embeddings=28) with word2vec.   
+  I used tensorflow for word2vec.  
+
 #### Generate dataset for batch
   * Afterwards, I used the 30.000 elements and split them into 24000 training examples and 6000 testing examples.  
     I did not use any validation set.  
-    I implemented the database containing the two hashtables (entity and relation), and the algorithm to retrieve the best document. However because my manpages database contained only few elements, it is of no relevance. Best document is retrieve randomly (see code in hash_tables.py l.155). If only I had more time with my school reserach projects, I would have used a more dense man page database. Nevermind, code is here, I just need to implement a script for retrieving man pages, and parse it.
+    I implement the database containing the two hashtables (entity and relation), and the algorithm to retrieve the best document. However because my manpages database contained only few elements, it is of no relevance. Best document is retrieve randomly (see code in hash_tables.py l.155). 
+    If only I had more time with my school reserach projects, I would have used a more dense man page database. Nevermind, code is here, I just need to implement a script for retrieving man pages, and parse it.
  
  #### Model
    * I implemented almost all specifities mentionned in the paper. I just don't use recall@k to check correctness of the neural network.  
