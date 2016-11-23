@@ -31,3 +31,23 @@ File created in _data/_ folder, except dataset.p can be delete after this step. 
      * When __training_random__ is set to true, model is trained on random generated data. Allow checking the model implementation rapidly 
      * When __pre_train_DE__ is set to true, no external knowledge is used (N=0)
      * When __untied__ is set to true, the external knowledge encoder is a separate neural network of depth 1, non bidirectionnal, with a final dense layer.
+
+## Side notes concerning trueAi assignement:
+#### Transform ubuntu-corpus / manpages words into embeddings
+  * I used a small part of ubuntu-dataset for the training of the neural network (30.000/1.000.000 elements). I just wanted to test my model on some data (other than random). I create a small dataset containing ~10 manPages as in the form of the paper. Every words in the ubuntu corpus (size_of_vocabulary=10000 words) are transformed into embeddings (size_embeddings=28) with word2vec. I used tensorflow for word2vec. 
+#### Generate dataset for batch
+  * Afterwards, I used the 30.000 elements and split them into 24000 training examples and 6000 testing examples.  
+    I did not use any validation set.  
+    I implemented the database containing the two hashtables (entity and relation), and the algorithm to retrieve the best document. However because my manpages database contained only few elements, it is of no relevance. Best document is retrieve randomly (see code in hash_tables.py l.155). If only I had more time with my school reserach projects, I would have used a more dense man page database. Nevermind, code is here, I just need to implement a script for retrieving man pages, and parse it.
+ 
+ #### Model
+   * I implemented almost all specifities mentionned in the paper. I just don't use recall@k to check correctness of the neural network.  
+     I used LSTM cells instead of classical RNN.  
+     I implemented a random batch generator, so as to make it easier to test the model, without executing the first two scrips.  
+     It is possible to 
+     	* pretrain the neural network on only context-response (in the test, on labelled data, I get some improvement of the loss error)
+        * create two neural networks (one as the context-reponse encode, and one as the knowledge encoder)
+        * learn weight for the tied neural network, or both untied neural networks.
+     Code is quite long, but there are some comments.
+ #### 
+ 	I am sure I could have used Tensorflow, and I would not have hard time coding 

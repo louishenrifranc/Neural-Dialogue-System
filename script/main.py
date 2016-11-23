@@ -541,7 +541,7 @@ def main():
     parser.add_argument('--hiddensize', type=int, default=28, help='Size of the hidden layers of the LSTM cell')
     parser.add_argument('--optimizer', type=str, default='adadelta', help='Adaptative gradient method')
     parser.add_argument('--isbidirectionnal', type=bool, default=False, help='LSTM DE bidirectionnal')
-    parser.add_argument('--lr', type=float, default=0.01, help='Learning rate')
+    parser.add_argument('--lr', type=float, default=0.1, help='Learning rate')
     parser.add_argument('--lr_decay', type=float, default=0.96, help='Learning rate decay')
     parser.add_argument('--untied', type=bool, default=False, help='Separate DE and KE neural networks')
     parser.add_argument('--pre_train_DE', type=bool, default=True, help='Train only the DE (N=0)')
