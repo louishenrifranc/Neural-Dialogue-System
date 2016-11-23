@@ -1,0 +1,131 @@
+function,name,description1,description2,description3,description4
+git,the stupid content tracker ,"Git is a fast, scalable, distributed revision control system with an unusually rich command set that provides both high-level operations and full access to internals. ","See gittutorial(7) to get started, then see giteveryday(7) for a useful minimum set of commands. The Git User’s Manual has a more in-depth introduction. ","After you mastered the basic concepts, you can come back to this page to learn what commands Git offers. You can learn more about individual Git commands with ""git help command"". gitcli(7) manual page gives you an overview of the command-line command syntax. ",A formatted and hyperlinked copy of the latest Git documentation can be viewed at https://git.github.io/htmldocs/git.html. 
+install,        copy files and set attributes ,"This install program copies files (often just compiled) into destination locations you choose.  If you want to download and
+       Install a ready-to-use package on a GNU/Linux system, you should
+       instead be using a package manager like yum(1) or apt-get(1).","In the first three forms, copy SOURCE to DEST or multiple SOURCE(s)
+       to the existing DIRECTORY, while setting permission modes and
+       owner/group.  In the 4th form, create all components of the given
+       DIRECTORY(ies).","Mandatory arguments to long options are mandatory for short options
+       Too.",
+gcc ,GNU project C and C++ compiler ," Only the most useful options are listed here; see below for the
+       remainder.  g++ accepts mostly the same options as gcc.","When you invoke GCC, it normally does preprocessing, compilation,
+       assembly and linking.  The ""overall options"" allow you to stop this
+       process at an intermediate stage.  For example, the -c option says
+       not to run the linker.  Then the output consists of object files
+       output by the assembler."," Other options are passed on to one or more stages of processing.
+       Some options control the preprocessor and others the compiler itself.
+       Yet other options control the assembler and linker; most of these are
+       not documented here, since you rarely need to use any of them.","Most of the command-line options that you can use with GCC are useful
+       for C programs; when an option is only useful with another language
+       (usually C++), the explanation says so explicitly.  If the
+       description for a particular option does not mention a source
+       language, you can use that option with all supported languages."
+locate, list files in databases that match a pattern ,"This manual page documents the GNU version of locate.  For each given
+       pattern, locate searches one or more databases of file names and
+       displays the file names that contain the pattern.  Patterns can
+       contain shell-style metacharacters: `*', `?', and `[]'.  The
+       metacharacters do not treat `/' or `.'  specially.  Therefore, a
+       pattern `foo*bar' can match a file name that contains `foo3/bar', and
+       a pattern `*duck*' can match a file name that contains `lake/.ducky'.
+       Patterns that contain metacharacters should be quoted to protect them
+       from expansion by the shell.","If a pattern is a plain string — it contains no metacharacters —
+       locate displays all file names in the database that contain that
+       string anywhere.  If a pattern does contain metacharacters, locate
+       only displays file names that match the pattern exactly.  As a
+       result, patterns that contain metacharacters should usually begin
+       with a `*', and will most often end with one as well.  The exceptions
+       are patterns that are intended to explicitly match the beginning or
+       end of a file name.","The file name databases contain lists of files that were on the
+       system when the databases were last updated.  The system
+       administrator can choose the file name of the default database, the
+       frequency with which the databases are updated, and the directories
+       for which they contain entries; see updatedb(1)."," If locate's output is going to a terminal, unusual characters in the
+       output are escaped in the same way as for the -print action of the
+       find command.  If the output is not going to a terminal, file names
+       are printed exactly as-is."
+cpp,        The C Preprocessor ,"The C preprocessor, often known as cpp, is a macro processor that is
+       used automatically by the C compiler to transform your program before
+       compilation.  It is called a macro processor because it allows you to
+       define macros, which are brief abbreviations for longer constructs.","The C preprocessor is intended to be used only with C, C++, and
+       Objective-C source code.  In the past, it has been abused as a
+       general text processor.  It will choke on input which does not obey
+       C's lexical rules.  For example, apostrophes will be interpreted as
+       the beginning of character constants, and cause errors.  Also, you
+       cannot rely on it preserving characteristics of the input which are
+       not significant to C-family languages.  If a Makefile is
+       preprocessed, all the hard tabs will be removed, and the Makefile
+       will not work.","Having said that, you can often get away with using cpp on things
+       which are not C.  Other Algol-ish programming languages are often
+       safe (Pascal, Ada, etc.) So is assembly, with caution.
+       -traditional-cpp mode preserves more white space, and is otherwise
+       more permissive.  Many of the problems can be avoided by writing C or
+       C++ style comments instead of native language comments, and keeping
+       macros simple.","Wherever possible, you should use a preprocessor geared to the
+       language you are writing in.  Modern versions of the GNU assembler
+       have macro facilities.  Most high level programming languages have
+       their own conditional compilation and inclusion mechanism.  If all
+       else fails, try a true general text processor, such as GNU M4."
+diff,compare files line by line ,Compare FILES line by line. ,"Mandatory arguments to long options are mandatory for short options
+       too.
+"," FILES are 'FILE1 FILE2' or 'DIR1 DIR2' or 'DIR FILE' or 'FILE DIR'.
+       If --from-file or --to-file is given, there are no restrictions on
+       FILE(s).  If a FILE is '-', read standard input.  Exit status is 0 if
+       inputs are the same, 1 if different, 2 if trouble.","The full documentation for diff is maintained as a Texinfo manual.
+       If the info and diff programs are properly installed at your site,
+       the command"
+rm,remove files or directories,"This manual page documents the GNU version of rm.  rm removes each
+       specified file.  By default, it does not remove directories","If the -I or --interactive=once option is given, and there are more
+       than three files or the -r, -R, or --recursive are given, then rm
+       prompts the user for whether to proceed with the entire operation.
+       If the response is not affirmative, the entire command is aborted.","Otherwise, if a file is unwritable, standard input is a terminal, and
+       the -f or --force option is not given, or the -i or
+       --interactive=always option is given, rm prompts the user for whether
+       to remove the file.  If the response is not affirmative, the file is
+       Skipped.",
+make,GNU make utility to maintain groups of programs,"The make utility will determine automatically which pieces of a large
+       program need to be recompiled, and issue the commands to recompile
+       them.  The manual describes the GNU implementation of make, which was
+       written by Richard Stallman and Roland McGrath, and is currently
+       maintained by Paul Smith.  Our examples show C programs, since they
+       are very common, but you can use make with any programming language
+       whose compiler can be run with a shell command.  In fact, make is not
+       limited to programs.  You can use it to describe any task where some
+       files must be updated automatically from others whenever the others
+       change."," To prepare to use make, you must write a file called the makefile
+       that describes the relationships among files in your program, and the
+       states the commands for updating each file.  In a program, typically
+       the executable file is updated from object files, which are in turn
+       made by compiling source files.","Once a suitable makefile exists, each time you change some source
+       files, this simple shell command:","suffices to perform all necessary recompilations.  The make program
+       uses the makefile description and the last-modification times of the
+       files to decide which of the files need to be updated.  For each of
+       those files, it issues the commands recorded in the makefile."
+mysql ,the MariaDB command-line tool ,"mysql is a simple SQL shell (with GNU readline capabilities). It
+       supports interactive and non-interactive use. When used
+       interactively, query results are presented in an ASCII-table format.
+       When used non-interactively (for example, as a filter), the result is
+       presented in tab-separated format. The output format can be changed
+       using command options.","If you have problems due to insufficient memory for large result
+       sets, use the --quick option. This forces mysql to retrieve results
+       from the server a row at a time rather than retrieving the entire
+       result set and buffering it in memory before displaying it. This is
+       done by returning the result set using the mysql_use_result() C API
+       function in the client/server library rather than
+       mysql_store_result().
+","Using mysql is very easy. Invoke it from the prompt of your command
+       interpreter as follows:","Then type an SQL statement, end it with “;”, \g, or \G and press
+       Enter."
+ncat ,Concatenate and redirect sockets ,"Ncat is a feature-packed networking utility which reads and writes
+       data across networks from the command line. Ncat was written for the
+       Nmap Project and is the culmination of the currently splintered
+       family of Netcat incarnations. It is designed to be a reliable
+       back-end tool to instantly provide network connectivity to other
+       applications and users. Ncat will not only work with IPv4 and IPv6
+       but provides the user with a virtually limitless number of potential
+       Uses.","Among Ncat's vast number of features there is the ability to chain
+       Ncats together; redirection of TCP, UDP, and SCTP ports to other
+       sites; SSL support; and proxy connections via SOCKS4 or HTTP proxies
+       (with optional proxy authentication as well). Some general principles
+       apply to most applications and thus give you the capability of
+       instantly adding networking support to software that would normally
+       never support it.",,

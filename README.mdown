@@ -1,0 +1,33 @@
+# Implementation of Incorporating Unstructured Textual Knowledge
+Sources into Neural Dialogue Systems
+
+![](http://rsarxiv.github.io/2016/07/15/Incorporating-Unstructured-Textual-Knowledge-Sources-into-Neural-Dialogue-Systems-PaperWeekly/media/1.png)
+
+
+__Dependencies__:
+* Python 2.7
+* Tensorflow (only for word2vec)
+* numpy
+* nltk
+* pandas
+* Lasagne
+* cPickle
+
+## 1. Transform ubuntu-corpus / manpages words into embeddings
+
+  * Download training dataset [ubuntu-ranking-dataset-creator](https://github.com/rkadlec/ubuntu-ranking-dataset-creator)
+  * Save it as output.csv in the data folder
+  * Make sure man_tokenized_sentences.csv is in the data folder
+  * Run ```python script/create_ubuntu_dataset.py```
+
+## 2. Generate dataset for batch
+
+  * Run ```python/gen_data.py```
+
+File created in _data/_ folder, except dataset.p can be delete after this step. Dataset contains all training and testing examples (including knowledges)
+
+## 3. Test the model 
+  * Run ```python main.py --data ../data/dataset.p --training_random [yf] --pre_train_DE [yf] --untied [yf]```
+     * When __training_random__ is set to true, model is trained on random generated data. Allow checking the model implementation rapidly 
+     * When __pre_train_DE__ is set to true, no external knowledge is used (N=0)
+     * When __untied__ is set to true, the external knowledge encoder is a separate neural network of depth 1, non bidirectionnal, with a final dense layer.
