@@ -292,10 +292,10 @@ class NeuralDialogueSystem(object):
             model['l_out_untied'] = DenseLayer(model['l_forward_untied'], num_units=self.HIDDEN_SIZE,
                                                nonlinearity=get_nonlinearity('tanh'))
             # Print topology of the KE network
-            print(get_network_str(model['l_out_untied']))
+            # print(get_network_str(model['l_out_untied']))
 
         # Print topology of the DE network
-        print(get_network_str(model['l_out']))
+        # print(get_network_str(model['l_out']))
 
         # Get the output given that the context was inputed
         c_output = lasagne.layers.get_output(model['l_out'], inputs=
@@ -361,7 +361,7 @@ class NeuralDialogueSystem(object):
             self.c_mask: self.shared_variable['c_mask'],
             self.r_mask: self.shared_variable['r_mask']
         }
-        # If we don't want pretrain
+        # If we don't want to pretrain
         if not pre_train_DE:
             givens[self.m] = self.shared_variable['m']
             givens[self.m_mask] = self.shared_variable['m_mask']
@@ -413,16 +413,16 @@ class NeuralDialogueSystem(object):
             y = np.random.randint(0, 2, size=(self.BATCH_SIZE,)).astype(get_dtype())
             for i in range(self.BATCH_SIZE):
                 nb_words_c = random.randint(1, self.MAX_LENGTH)
-                words_c[i][nb_words_c:][:] = 0
-                mask_c[i][nb_words_c:] = 0
+            words_c[i][nb_words_c:][:] = 0
+            mask_c[i][nb_words_c:] = 0
 
-                nb_words_r = random.randint(1, self.MAX_LENGTH)
-                words_r[i][nb_words_r:][:] = 0
-                mask_r[i][nb_words_r:] = 0
+            nb_words_r = random.randint(1, self.MAX_LENGTH)
+            words_r[i][nb_words_r:][:] = 0
+            mask_r[i][nb_words_r:] = 0
 
-                nb_words_m = random.randint(1, self.MAX_LENGTH)
-                words_m[i][nb_words_m:][:] = 0
-                mask_m[i][nb_words_m:] = 0
+            nb_words_m = random.randint(1, self.MAX_LENGTH)
+            words_m[i][nb_words_m:][:] = 0
+            mask_m[i][nb_words_m:] = 0
             self.shared_variable['c'].set_value(words_c)
             self.shared_variable['r'].set_value(words_r)
             self.shared_variable['r_mask'].set_value(mask_r)
@@ -515,19 +515,22 @@ def main():
     parser.add_argument('--grad_clipping', type=int, default=10, help='Clip gradient value')
     parser.add_argument('--embedding_size', type=int, default=28, help='Size of the embeddings')
     parser.add_argument('--n_epoch', type=int, default=100, help='Number of epochs')
-    parser.add_argument('--training_random', type=bool, default=False, help='Train on random data')
+    parser.add_argument('--training_random', type=bool, default=True, help='Train on random data')
     parser.add_argument('--max_length_sequence', type=int, default=160,
                         help='Windows size for context/response')
-    parser.add_argument('--data', type=str, default='../data/dataset.p',  # MODIFY to NONE after testing !!!
+    parser.add_argument('--data', type=str, default=None,
                         help='File containing the data (train/test sets)')
     args = parser.parse_args()
 
-    if args.data is None and args.training_random == False:
-        raise StandardError('no data provided. Make sure to create train/test set with gen_data.py before')
-        return 1
-
-    # Load the data
-    data = cPickle.load(open(args.data, 'rb'))
+    if args.data is None:
+        if args.training_random == False:
+            raise StandardError('no data provided. Make sure to create train/test set with gen_data.py before')
+            return 1
+        data = None
+    else:
+        # Load the data
+        data = cPickle.load(open(args.data, 'rb'))
+    print('All arguments : ', args)
     # Create the model
     rnn = NeuralDialogueSystem(data=data,
                                batch_size=args.batch_size,

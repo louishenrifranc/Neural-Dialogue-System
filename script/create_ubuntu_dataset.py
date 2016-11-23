@@ -265,7 +265,7 @@ def main():
 
     folder = args.folder_data
 
-    # tokenizing_file(args.ubuntu_file, nb_lignes=args.nb_examples)
+    tokenizing_file(args.ubuntu_file, nb_lignes=args.nb_examples)
 
     # Read the tokenize pickle
     data = pd.read_pickle(get_name_file('tokenized_sentences', dataset="u_corpus"))

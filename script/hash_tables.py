@@ -7,7 +7,7 @@ class tfidf:
     An extremely simple Python library to perform TF-IDF document comparison.
     [https://github.com/hrs/python-tf-idf]
     """
-    W
+
 
     def __init__(self):
         self.weighted = False
