@@ -195,34 +195,19 @@ class NeuralDialogueSystem(object):
         if train_only_KE and not untied:
             raise StandardError('Can\'t train only knowledge encoder if weights are untied, or if pretraining phase')
             return
-
-        """
-
-
-            1. Copying parameters
-
-
-        """
+        #
+        # 1. Copy parameters and create placeholders
+        #
         self.BATCH_SIZE = batch_size
         self.HIDDEN_SIZE = hidden_size
         self.N_RECCURENT_LAYERS = n_recurent_layers
         self.MAX_LENGTH = max_length_sequence
         self.EMBEDDING_SIZE = embedding_size
         self.optimizer = optimizer
-
         self.N_EPOCH = n_epoch
-
         self.lr = lr
-
         self.data = data
 
-        """
-
-
-            2. Create placeholders for inputs/targets
-
-
-        """
         self.c = T.ftensor3('c')
         self.c_mask = T.fmatrix('c_mask')
 
@@ -238,32 +223,17 @@ class NeuralDialogueSystem(object):
         self.N = get_shared("glorotU", self.HIDDEN_SIZE, self.HIDDEN_SIZE)
 
         self.shared_variable = {}
-
-        """
-
-
-            3. Create shared variable
-
-
-        """
         for var in ['c', 'r', 'm']:
             self.shared_variable[var] = theano.shared(
                 np.zeros((self.BATCH_SIZE, self.MAX_LENGTH, self.EMBEDDING_SIZE)).astype(get_dtype()))
-
         for var in ['c_mask', 'r_mask', 'm_mask']:
             self.shared_variable[var] = get_shared('zeros', self.BATCH_SIZE, self.MAX_LENGTH)
-
         self.shared_variable['y'] = theano.shared(np.zeros((self.BATCH_SIZE,)).astype(get_dtype()))
 
-        """
-
-
-            3. Build the model
-
-
-        """
+        #
+        # 2. Build the model
+        #
         print('Building model')
-
         model = {}
         # Input Layer is of size (N_BATCH, MAX_LENGTH, EMBEDDING_SIZE)
         model['l_in'] = InputLayer(
@@ -274,7 +244,6 @@ class NeuralDialogueSystem(object):
         # supplied as matrices of dimensionality (N_BATCH, MAX_LENGTH)
         model['l_mask'] = InputLayer(shape=(self.BATCH_SIZE, self.MAX_LENGTH))
         prev, prev_b = model['l_in'], model['l_in']
-
         # Iterate over the depth of the neural network (only building the DE part)
         # If KE weights are tied, then the same neural network will be used for
         # the context, the response, and the knowledge encoder
@@ -310,7 +279,8 @@ class NeuralDialogueSystem(object):
             model['l_out'] = DenseLayer(prev, num_units=self.HIDDEN_SIZE,
                                         nonlinearity=get_nonlinearity('tanh'))
 
-        # Build a separate neural network of depth 1 if KE weights are untied
+        # KE encoder if weights are untied:
+        # Build a separate neural network of depth with one LSTM layer and one DenseLayer at the end
         if untied:
             model['l_forward_untied'] = LSTMLayer(model['l_in'],
                                                   self.HIDDEN_SIZE,
@@ -321,80 +291,69 @@ class NeuralDialogueSystem(object):
                                                   peepholes=True)
             model['l_out_untied'] = DenseLayer(model['l_forward_untied'], num_units=self.HIDDEN_SIZE,
                                                nonlinearity=get_nonlinearity('tanh'))
-            # Print topology of the neural network
+            # Print topology of the KE network
             print(get_network_str(model['l_out_untied']))
 
-        # Print topology of the neural network
+        # Print topology of the DE network
         print(get_network_str(model['l_out']))
 
+        # Get the output given that the context was inputed
         c_output = lasagne.layers.get_output(model['l_out'], inputs=
         {model['l_in']: self.c, model['l_mask']: self.c_mask})
+        # Get the output given that the response was inputed
         r_output = lasagne.layers.get_output(model['l_out'], inputs=
         {model['l_in']: self.r, model['l_mask']: self.r_mask})
+        # Get the output given that the message was inputed
         m_output = lasagne.layers.get_output(model['l_out'] if not untied else model['l_out_untied'], inputs=
         {model['l_in']: self.m, model['l_mask']: self.m_mask})
 
         c_M_r = T.batched_dot(c_output, T.dot(r_output, self.M.T))
         m_N_r = T.batched_dot(m_output, T.dot(r_output, self.N.T))
 
-        """
-
-
-            5. Concatenate of all neural network outputs
-
-
-        """
-        # out = sigmoid(context * M * response + knowledge * N * response)
-        # pre_train_DE only consider the first part of the equation (N = 0)
-        # During pre-training, knowledge encoder output is not used.
+        # Formula : out = sigmoid(context * M * response + knowledge * N * response)
+        # When pre_train_DE is True, knowledge encoder output is not used (N = 0)
         results = c_M_r
         if not pre_train_DE:
             results += m_N_r
         self.out = T.nnet.sigmoid(results)
 
-        """
-
-
-            6. Loss function
-
-
-        """
+        #
+        # 3. Define loss function as the mean over the batch element of the cross entropy between
+        #    the output and the true target
+        # (no regularization)
         self.cost = T.mean(lasagne.objectives.binary_crossentropy(self.out, self.target), axis=0)
         self.model = model
 
-        """
-
-
-            7. Collect weights in different list to update them
-
-
-        """
+        #
+        # 4. Create weights update list
+        #
         # Three lists:
-        # a. List of all parameters in a tied neural network
-        # b. List of KE parameters in an untied neural network
-        # c. List of all parameters in an untied neural network
+        # a. List of all parameters for a tied encoder
+        # b. List of KE weights when DE and KE are separated
+        # c. List of all weights when DE and KE are separated
         tied_params = get_all_params(self.model['l_out'], trainable=True) + [self.M]
         if not pre_train_DE:
             tied_params += [self.N]
-
         if untied:
             untied_params = get_all_params(self.model['l_out_untied'], trainable=True)
             all_params = tied_params + untied_params
             untied_params += [self.N]
 
-        """
-
-
-            8. Optimizer selection
-
-
-        """
+        #
+        # 5. Select an optimizer.
+        #
         if untied:
             updates_untied = get_optimizer(optimizer, self.cost, untied_params, self.lr)
             updates_all = get_optimizer(optimizer, self.cost, all_params, self.lr)
-
         updates_tied = get_optimizer(optimizer, self.cost, tied_params, self.lr)
 
+        #
+        # 6. Create theano function for training and testing the neural network
+        #    One training function is created depending on three parameters
+        #     * pre training DE
+        #     * training only KE
+        #     * weights are tied
+        #
         givens = {
             self.c: self.shared_variable['c'],
             self.r: self.shared_variable['r'],
@@ -402,42 +361,39 @@ class NeuralDialogueSystem(object):
             self.c_mask: self.shared_variable['c_mask'],
             self.r_mask: self.shared_variable['r_mask']
         }
+        # If we don't want pretrain
         if not pre_train_DE:
             givens[self.m] = self.shared_variable['m']
             givens[self.m_mask] = self.shared_variable['m_mask']
-
-        """
-
-
-            9. Theano functions
-
-
-        """
+        # If we don't want to train only the KE
         if not train_only_KE:
-            if not untied:
+            if not untied:  # if weights are tied, pick only weights of the DE as KE = DE
                 self.train_fn = theano.function([], self.cost, updates=updates_tied,
                                                 givens=givens,
                                                 on_unused_input='warn')
-            else:
+            else:  # if weights are untied, pick weights for the DE, and the KE as KE != DE
                 self.train_fn = theano.function([], self.cost, updates=updates_all, givens=givens,
                                                 on_unused_input='warn')
+        # If we want to train the KE only
         else:
             self.train_fn = theano.function([], self.cost, updates=updates_untied, givens=givens,
                                             on_unused_input='warn')
+        # Test function is similar for all cases
         self.test_fn = theano.function([], self.cost, givens=givens, on_unused_input='warn')
 
+        # Select the function for getting the next batch (random data, or true labelled data
         self.get_next_batch = self.gen_random_data if training_random else self.gen_data
         print('Model built')
 
     def gen_random_data(self,
                         train_or_test):
         """
-        Generate random data for each batch
+        Generate random data
+        Set the shared variable for inputs, and return the current iteration index
         Parameters
         ----------
-        :param train_or_test: str ['test', 'train']
-
-        :return:
+        train_or_test: str in ['test', 'train']
+        :return: iteration index
         """
         nb_train_iter = 10  # Random value (number of elements will be nb_train_iter * batch_size)
         nb_test_iter = 2  # Random value (number of elements  will be nb_test_iter * batch_size)
@@ -480,6 +436,16 @@ class NeuralDialogueSystem(object):
                  train_or_test,
                  shuffle_index=True
                  ):
+        """
+        Split training/testing data into batch of size self.BATCH_SIZE
+        Set the shared variable and return the current iteration index
+        Parameters
+        ----------
+        train_or_test: str in ['test', 'train']
+        shuffle_index: bool (default=True)
+            Shuffle indices in the data
+        :return: iteration index
+        """
         batch = self.data[train_or_test]
         number_of_elements = batch['y'].shape[0]
         indices = range(number_of_elements)
@@ -501,11 +467,11 @@ class NeuralDialogueSystem(object):
 
     def train(self):
         """
-        Train the neural network (simple training)
+        Train the neural network
+        (very simple training: no patience, no saving of the best model)
         At each epoch:
-            * Iterate over the training set
-            * Calculate test set mean error
-        TODO: patience + save best model
+            * Iterate over the training set and calculate the mean error
+            * Iterate over the test set and calculate the mean error
         :return:
         """
         for epoch in range(self.N_EPOCH):
@@ -537,21 +503,21 @@ def main():
     parser = argparse.ArgumentParser()
     parser.register('type', 'bool', str2bool)
     parser.add_argument('--batch_size', type=int, default=32, help='Size of a batch')
-    parser.add_argument('--nrecurrent_layers', type=int, default=1, help='Depth of the Decoder network')
+    parser.add_argument('--nrecurrent_layers', type=int, default=1, help='Depth of the dual encoder network')
     parser.add_argument('--hiddensize', type=int, default=28, help='Size of the hidden layers of the LSTM cell')
     parser.add_argument('--optimizer', type=str, default='adadelta', help='Adaptative gradient method')
     parser.add_argument('--isbidirectionnal', type=bool, default=False, help='LSTM DE bidirectionnal')
     parser.add_argument('--lr', type=float, default=0.1, help='Learning rate')
     parser.add_argument('--lr_decay', type=float, default=0.96, help='Learning rate decay')
-    parser.add_argument('--untied', type=bool, default=False, help='Separate DE and KE neural networks')
-    parser.add_argument('--pre_train_DE', type=bool, default=True, help='Train only the DE (N=0)')
+    parser.add_argument('--untied', type=bool, default=False, help='')
+    parser.add_argument('--pre_train_DE', type=bool, default=True, help='Train only the dual encoder (N=0)')
+    parser.add_argument('--train_only_KE', type=bool, default=False, help='Train only the knowledge encoder')
     parser.add_argument('--grad_clipping', type=int, default=10, help='Clip gradient value')
     parser.add_argument('--embedding_size', type=int, default=28, help='Size of the embeddings')
     parser.add_argument('--n_epoch', type=int, default=100, help='Number of epochs')
-    parser.add_argument('--train_only_KE', type=bool, default=False, help='Train only Knowledge encoder')
-    parser.add_argument('--training_random', type=bool, default=False, help='Number of epochs')
+    parser.add_argument('--training_random', type=bool, default=False, help='Train on random data')
     parser.add_argument('--max_length_sequence', type=int, default=160,
-                        help='Max number of words consider for context/response')
+                        help='Windows size for context/response')
     parser.add_argument('--data', type=str, default='../data/dataset.p',  # MODIFY to NONE after testing !!!
                         help='File containing the data (train/test sets)')
     args = parser.parse_args()
