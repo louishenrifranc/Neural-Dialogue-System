@@ -1,5 +1,4 @@
 # Implementation of Incorporating Unstructured Textual Knowledge
-Sources into Neural Dialogue Systems
 
 ![](http://rsarxiv.github.io/2016/07/15/Incorporating-Unstructured-Textual-Knowledge-Sources-into-Neural-Dialogue-Systems-PaperWeekly/media/1.png)
 
@@ -13,6 +12,8 @@ __Dependencies__:
 * Lasagne
 * cPickle
 
+Launch script from script folder/
+
 ## 1. Transform ubuntu-corpus / manpages words into embeddings
 
   * Download training dataset [ubuntu-ranking-dataset-creator](https://github.com/rkadlec/ubuntu-ranking-dataset-creator)
@@ -20,7 +21,7 @@ __Dependencies__:
   * Make sure man_tokenized_sentences.csv is in the data folder
   * Run ```python script/create_ubuntu_dataset.py```
 
-## 2. Generate dataset for batch
+## 2. Generate datasets for the model
 
   * Run ```python/gen_data.py```
 
@@ -55,12 +56,20 @@ Except _dataset.p_, all files in _data/_ can be deleted after this step. _datase
        * create two neural networks (one for the context response encoder, and one for the knowledge encoder)
        * learn weight for the tied neural network or both untied neural networks.
     The code is quite long, but there are some comments.  
+    No regularization, no batch normalization.
     There are others parameters for the script that can be found in the source code (main.py l.503)
+
+#### Further improvement
+  * retrieve man pages
+  * train with larger training set
+  * add regularization, dropout
+  * train with other knowledge database...
 
 #### Conclusion
   * It was a nice and interesting project. The paper's idea is really worth it. I have the feeling that incorporating external knowledge is a key to improve dialogue systems. However the paper's method is very simple, and I hope there will be work in that direction to improve the incorporation of external prior knowledge (Actually, I found some more advanced works on this idea, such as this one http://videolectures.net/deeplearning2016_wen_network_based/)   
-    I hope I was able to show you my motivation to work with the trueAI team, to solve next challenge in dialogue systems. 
+    
+    I hope I was able to show you my strong motivation to work with the trueAI team, to solve next challenge in dialogue systems. 
 
-    I also think to get back to the project once the school semester will be over and improve the dataset (larger dataset, all manPage included), or even use a new one.  
+    I also think to get back to the project once the school semester will be over and improve the dataset.
     Feel free to contact me back to talk about the implementation if you have any questions.
 
