@@ -55,8 +55,8 @@ File created in _data/_ folder, except dataset.p can be delete after this step. 
     Code is quite long, but there are some comments. 
  
 #### Conclusion
- 	It was a nice and interesting project. The paper's idea is really worth it. I have the sentiment that incorporating external knowledge is a key to improve dialogue systems. However the idea in the paper is at its beginning, and I hope there will be work in that direction to improve the incorporation.  (I found some more advanced works on this idea, such as this one http://videolectures.net/deeplearning2016_wen_network_based/) 
-  I hope I showed my motivation to work with the trueAI team, to solve next challenge in dialogue systems. 
-  I also think to get back to the project once the semester will be over and improve the dataset (larger dataset, all manPage included), or even use a new one.
-  Feel free to contact me back to talk about the implementation if you have any questions.
-  
+  * It was a nice and interesting project. The paper's idea is really worth it. I have the sentiment that incorporating external knowledge is a key to improve dialogue systems. However the idea in the paper is at its beginning, and I hope there will be work in that direction to improve the incorporation (Actually, I found some more advanced works on this idea, such as this one http://videolectures.net/deeplearning2016_wen_network_based/) 
+    I hope I showed my motivation to work with the trueAI team, to solve next challenge in dialogue systems. 
+    I also think to get back to the project once the semester will be over and improve the dataset (larger dataset, all manPage included), or even use a new one.
+    Feel free to contact me back to talk about the implementation if you have any questions.
+
