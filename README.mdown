@@ -24,39 +24,42 @@ __Dependencies__:
 
   * Run ```python/gen_data.py```
 
-File created in _data/_ folder, except dataset.p can be delete after this step. Dataset contains all training and testing examples (including knowledges)
+Except _dataset.p_, all files in _data/_ can be deleted after this step. _dataset.p_ contains all training and testing examples (including the knowledge)
 
 ## 3. Test the model 
   * Run ```python main.py --data ../data/dataset.p --training_random [yf] --pre_train_DE [yf] --untied [yf]```
-     * When __training_random__ is set to true, model is trained on random generated data. Allow checking the model implementation rapidly 
+     * When __training_random__ is set to true, the model is trained on randomly generated data. __Allow checking the model implementation rapidly__ 
      * When __pre_train_DE__ is set to true, no external knowledge is used (N=0)
-     * When __untied__ is set to true, the external knowledge encoder is composed of a separate LSTM layer, non bidirectionnal, with a final dense layer.
+     * When __untied__ is set to true, the external knowledge encoder is composed of a separate LSTM layer, not bidirectional, with a final dense layer.
+
 
 ## Side notes concerning trueAi assignement:
 #### Transform ubuntu-corpus / manpages words into embeddings
-  * I used a small part of ubuntu-dataset for the training of the neural network (30.000/1.000.000 elements). I just wanted to test my model on some data (other than random) and not on all the ubuntu corpus. I also create a small dataset containing ~10 manPages as in the form of the paper. 
-  Every words in the ubuntu corpus (size_of_vocabulary=10000 most commun words) are transformed into embeddings (size_embeddings=28) with word2vec.   
+  * I used a small part of ubuntu-dataset for the training of the neural network (30.000/1.000.000 elements). I just wanted to assess my model on some data (other than random) and not on all the ubuntu corpus.  
+  I also create a small dataset containing ~10 manPages as in the form described in the paper. 
+  Every words in the ubuntu corpus (size_of_vocabulary=10000 most common words) are transformed into embeddings (size_embeddings=28) with word2vec.   
   I used tensorflow for word2vec.  
 
-#### Generate dataset for batch
-  * Afterwards, I used the 30.000 elements and split them into 24000 training examples and 6000 testing examples.  
+#### Generate dataset
+  * Afterward, I used the 30.000 elements and split them into 24000 training examples and 6000 testing examples.  
     I did not use any validation set.  
-    I implement the database containing the two hashtables (entity and relation), and the algorithm to retrieve the best document. However because my manpages database contained only few elements, it is of no relevance. Best document is retrieve randomly (see code in hash_tables.py l.155). 
-    If only I had more time with my school reserach projects, I would have used a more dense man page database. Nevermind, code is here, I just need to implement a script for retrieving man pages, and parse it.
+    I implement the database containing the two hash tables (entity and relation), and the algorithm to retrieve the best document. However because my manpages database contained only a few elements, it is of no relevance. Best document is retrieved randomly (see code in hash_tables.py l.155). 
+    If only I had more time with my school/research projects, I would have used a bigger man page database. Nevermind, the code is here, I just need to implement a script for retrieving man pages and parse it.
  
 #### Model
-  * I implemented almost all specifities mentionned in the paper. I just don't use recall@k to check correctness of the neural network.  
+  * I implemented almost all specificities mentioned in the paper. I just don't use recall@k to check the correctness of the neural network.  
     I used LSTM cells instead of classical RNN.  
-    I implemented a random batch generator, so as to make it easier to test the model, without executing the first two scrips.  
+    I implemented a random batch generator, so as to make it easier to test the model, without executing the first two scripts.  
     It is possible to 
-    	* pretrain the neural network on only context-response (in the test, on labelled data, I get some improvement of the loss error)
-       * create two neural networks (one as the context-reponse encode, and one as the knowledge encoder)
-       * learn weight for the tied neural network, or both untied neural networks.
-    Code is quite long, but there are some comments. 
- 
+       * train the neural network on only context-response (in the test, on labeled data, I get some improvement of the loss error)
+       * create two neural networks (one for the context response encoder, and one for the knowledge encoder)
+       * learn weight for the tied neural network or both untied neural networks.
+    The code is quite long, but there are some comments.  
+    There are others parameters for the script that can be found in the source code (main.py l.503)
 #### Conclusion
-  * It was a nice and interesting project. The paper's idea is really worth it. I have the sentiment that incorporating external knowledge is a key to improve dialogue systems. However the idea in the paper is at its beginning, and I hope there will be work in that direction to improve the incorporation (Actually, I found some more advanced works on this idea, such as this one http://videolectures.net/deeplearning2016_wen_network_based/)   
-    I hope I showed my motivation to work with the trueAI team, to solve next challenge in dialogue systems.   
-    I also think to get back to the project once the semester will be over and improve the dataset (larger dataset, all manPage included), or even use a new one.  
+  * It was a nice and interesting project. The paper's idea is really worth it. I have the feeling that incorporating external knowledge is a key to improve dialogue systems. However the paper's method is very simple, and I hope there will be work in that direction to improve the incorporation of external prior knowledge (Actually, I found some more advanced works on this idea, such as this one http://videolectures.net/deeplearning2016_wen_network_based/)   
+    I hope I was able to show you my motivation to work with the trueAI team, to solve next challenge in dialogue systems. 
+      
+    I also think to get back to the project once the school semester will be over and improve the dataset (larger dataset, all manPage included), or even use a new one.  
     Feel free to contact me back to talk about the implementation if you have any questions.
 
