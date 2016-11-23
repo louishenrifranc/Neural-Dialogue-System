@@ -184,12 +184,16 @@ class NeuralDialogueSystem(object):
                  pre_train_DE=False,
                  grad_clipping=10,
                  n_epoch=100,
-                 training_random=False
+                 training_random=False,
+                 train_only_KE=False
                  ):
 
         if pre_train_DE == True and untied == True:
             raise ValueError(
                 "When pretraining neural network (pre_train_DE==True), weights should be tied (untied=False)")
+            return
+        if train_only_KE and not untied:
+            raise StandardError('Can\'t train only knowledge encoder if weights are untied, or if pretraining phase')
             return
 
         """
@@ -374,7 +378,7 @@ class NeuralDialogueSystem(object):
             tied_params += [self.N]
 
         if untied:
-            untied_params = get_all_params(self.model['l_out_untied'], trainable = True)
+            untied_params = get_all_params(self.model['l_out_untied'], trainable=True)
             all_params = tied_params + untied_params
             untied_params += [self.N]
 
@@ -409,14 +413,17 @@ class NeuralDialogueSystem(object):
 
 
         """
-        self.train_DE_KE_tied_fn = theano.function([], self.cost, updates=updates_tied,
-                                                   givens=givens,
-                                                   on_unused_input='warn')
-        if untied:
-            self.train_KE_untied_fn = theano.function([], self.cost, updates=updates_untied, givens=givens,
-                                                      on_unused_input='warn')
-            self.train_DE_KE_untied_fn = theano.function([], self.cost, updates=updates_all, givens=givens,
-                                                         on_unused_input='warn')
+        if not train_only_KE:
+            if not untied:
+                self.train_fn = theano.function([], self.cost, updates=updates_tied,
+                                                givens=givens,
+                                                on_unused_input='warn')
+            else:
+                self.train_fn = theano.function([], self.cost, updates=updates_all, givens=givens,
+                                                on_unused_input='warn')
+        else:
+            self.train_fn = theano.function([], self.cost, updates=updates_untied, givens=givens,
+                                            on_unused_input='warn')
         self.test_fn = theano.function([], self.cost, givens=givens, on_unused_input='warn')
 
         self.get_next_batch = self.gen_random_data if training_random else self.gen_data
@@ -506,7 +513,7 @@ class NeuralDialogueSystem(object):
             total_cost_epoch = 0
             start_time = time.time()
             for iter in self.get_next_batch('train'):
-                cost_epoch = self.train_DE_KE_tied_fn()
+                cost_epoch = self.train_fn()
                 total_cost_epoch += cost_epoch
                 nb_iters += 1
                 # print "Iter %d: %f" % (iter, cost_epoch)
@@ -536,11 +543,12 @@ def main():
     parser.add_argument('--isbidirectionnal', type=bool, default=False, help='LSTM DE bidirectionnal')
     parser.add_argument('--lr', type=float, default=0.01, help='Learning rate')
     parser.add_argument('--lr_decay', type=float, default=0.96, help='Learning rate decay')
-    parser.add_argument('--untied', type=bool, default=True, help='Separate DE and KE neural networks')
-    parser.add_argument('--pre_train_DE', type=bool, default=False, help='Train only the DE (N=0)')
+    parser.add_argument('--untied', type=bool, default=False, help='Separate DE and KE neural networks')
+    parser.add_argument('--pre_train_DE', type=bool, default=True, help='Train only the DE (N=0)')
     parser.add_argument('--grad_clipping', type=int, default=10, help='Clip gradient value')
     parser.add_argument('--embedding_size', type=int, default=28, help='Size of the embeddings')
     parser.add_argument('--n_epoch', type=int, default=100, help='Number of epochs')
+    parser.add_argument('--train_only_KE', type=bool, default=False, help='Train only Knowledge encoder')
     parser.add_argument('--training_random', type=bool, default=False, help='Number of epochs')
     parser.add_argument('--max_length_sequence', type=int, default=160,
                         help='Max number of words consider for context/response')
@@ -552,7 +560,9 @@ def main():
         raise StandardError('no data provided. Make sure to create train/test set with gen_data.py before')
         return 1
 
+    # Load the data
     data = cPickle.load(open(args.data, 'rb'))
+    # Create the model
     rnn = NeuralDialogueSystem(data=data,
                                batch_size=args.batch_size,
                                n_recurent_layers=args.nrecurrent_layers,
@@ -567,7 +577,9 @@ def main():
                                embedding_size=args.embedding_size,
                                grad_clipping=args.grad_clipping,
                                n_epoch=args.n_epoch,
-                               training_random=args.training_random)
+                               training_random=args.training_random,
+                               train_only_KE=args.train_only_KE)
+    # Train the model
     rnn.train()
 
 
