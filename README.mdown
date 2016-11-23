@@ -12,7 +12,6 @@ __Dependencies__:
 * Lasagne
 * cPickle
 
-Launch script from script folder/
 
 ## 1. Transform ubuntu-corpus / manpages words into embeddings
 
