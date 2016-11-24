@@ -157,13 +157,14 @@ class NeuralDialogueSystem(object):
         If true, the Knowledge Encoder is a different
         neural network than the context/response encoder
     pre_train_DE:
-        If true, pretrain only KE-untied as the DE model
-        (ie N = 0)
+        If true, pretrain only DE model       (ie N = 0)
     grad_clipping: float (default: 10.0)
         Clip the gradient in the backward pass
     training_random: bool (default False)
         When set to true, the model is "trained" on random data
         Allow check model correctness
+    train_only_KE: bool (default: False)
+        Train only the knowledge encoder
     data:
     """
 
@@ -192,7 +193,7 @@ class NeuralDialogueSystem(object):
             raise ValueError(
                 "When pretraining neural network (pre_train_DE==True), weights should be tied (untied=False)")
             return
-        if train_only_KE and not untied:
+        if train_only_KE and (not untied or pre_train_DE):
             raise StandardError('Can\'t train only knowledge encoder if weights are untied, or if pretraining phase')
             return
         #
@@ -413,16 +414,16 @@ class NeuralDialogueSystem(object):
             y = np.random.randint(0, 2, size=(self.BATCH_SIZE,)).astype(get_dtype())
             for i in range(self.BATCH_SIZE):
                 nb_words_c = random.randint(1, self.MAX_LENGTH)
-            words_c[i][nb_words_c:][:] = 0
-            mask_c[i][nb_words_c:] = 0
+                words_c[i][nb_words_c:][:] = 0
+                mask_c[i][nb_words_c:] = 0
 
-            nb_words_r = random.randint(1, self.MAX_LENGTH)
-            words_r[i][nb_words_r:][:] = 0
-            mask_r[i][nb_words_r:] = 0
+                nb_words_r = random.randint(1, self.MAX_LENGTH)
+                words_r[i][nb_words_r:][:] = 0
+                mask_r[i][nb_words_r:] = 0
 
-            nb_words_m = random.randint(1, self.MAX_LENGTH)
-            words_m[i][nb_words_m:][:] = 0
-            mask_m[i][nb_words_m:] = 0
+                nb_words_m = random.randint(1, self.MAX_LENGTH)
+                words_m[i][nb_words_m:][:] = 0
+                mask_m[i][nb_words_m:] = 0
             self.shared_variable['c'].set_value(words_c)
             self.shared_variable['r'].set_value(words_r)
             self.shared_variable['r_mask'].set_value(mask_r)
